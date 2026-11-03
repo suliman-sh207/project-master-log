@@ -1,0 +1,1087 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    color: #243447;
+}
+
+.header {
+    background: #163b5c;
+    color: white;
+    padding: 24px 32px;
+}
+
+.header h1 {
+    margin: 0 0 8px;
+}
+
+.header p {
+    margin: 0;
+    color: #d7e8f5;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 32px auto;
+    padding: 24px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px #0000000d;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 16px;
+    background: white;
+}
+
+#projectInfo {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f3f6fa;
+    border-radius: 6px;
+}
+
+/* Main website background */
+body {
+    background-image:
+        linear-gradient(rgba(8, 25, 45, 0.45), rgba(8, 25, 45, 0.55)),
+        url("/images/website-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* Login page background */
+.login-card {
+    background-color: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+}
+
+/* Dashboard panels */
+.panel {
+    background-color: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(6px);
+}
+
+/* ===== Professional Login Page ===== */
+
+body:has(.login-card) {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+
+    background:
+        linear-gradient(rgba(7, 24, 43, 0.45), rgba(7, 24, 43, 0.55)),
+        url("/images/login-bg.jpg") center / cover no-repeat fixed;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+    color: #243447;
+}
+
+.login-card h2 {
+    margin: 0 0 10px;
+    color: #163b5c;
+    font-size: 28px;
+    text-align: center;
+}
+
+.login-card p {
+    margin-bottom: 24px;
+    color: #64748b;
+    text-align: center;
+}
+
+.login-card label {
+    display: block;
+    margin: 16px 0 7px;
+    font-weight: 600;
+}
+
+.login-card input {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: white;
+    font-size: 15px;
+}
+
+.login-card input:focus {
+    outline: 2px solid #60a5fa;
+    border-color: #2563eb;
+}
+
+.login-card button {
+    width: 100%;
+    min-height: 44px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 7px;
+    background: #1769d2;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-card button:hover {
+    background: #1255ad;
+}
+
+.login-card a {
+    color: #1769d2;
+}
+
+@media (max-width: 480px) {
+    body:has(.login-card) {
+        padding: 16px;
+    }
+
+    .login-card {
+        padding: 24px 20px;
+    }
+}
+
+/* Login page: full-screen construction background */
+body:has(.login-card) {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 40px 8%;
+
+    background-color: #163b5c;
+    background-image:
+        linear-gradient(90deg,
+            rgba(9, 29, 53, 0.15),
+            rgba(9, 29, 53, 0.35)),
+        url("/images/website-bg.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Keep the login card on the right */
+.login-card {
+    width: 100%;
+    max-width: 430px;
+    margin: 0;
+    padding: 32px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+    color: #243447;
+    backdrop-filter: blur(8px);
+}
+
+/* Responsive layout for mobile screens */
+@media (max-width: 600px) {
+    body:has(.login-card) {
+        justify-content: center;
+        padding: 20px;
+        background-position: center;
+    }
+}
+
+/* Keep the project title inside the login card */
+.login-card {
+    position: relative;
+    padding-top: 35px;
+}
+
+/* Style the project name inside the card */
+.login-card::before {
+    content: "Project Master Log";
+    display: block;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 25px;
+    font-weight: 700;
+    color: #163b5c;
+}
+
+/* Add the system subtitle */
+.login-card::after {
+    content: "Document Control System";
+    display: block;
+    margin-top: -2px;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Hide the existing title outside the card */
+body:has(.login-card)>.header,
+body:has(.login-card)>header {
+    display: none;
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.login-brand h1 {
+    margin: 0 0 8px;
+    color: #163b5c;
+    font-size: 25px;
+    line-height: 1.3;
+}
+
+.login-brand p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Remove unwanted decorative lines and duplicate generated text */
+.login-card::before,
+.login-card::after {
+    content: none !important;
+    display: none !important;
+}
+
+/* Remove underline from the project heading and subtitle */
+.login-brand,
+.login-brand h1,
+.login-brand p {
+    text-decoration: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove underline from the bottom subtitle if it is a paragraph */
+.login-card>p:last-child {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+/* ===== Project selection dashboard ===== */
+
+body:has(.project-home) {
+    min-height: 100vh;
+    background:
+        linear-gradient(rgba(9, 29, 51, 0.58), rgba(9, 29, 51, 0.68)),
+        url("/images/dashboard-bg.jpg") center / cover fixed no-repeat;
+}
+
+.project-home {
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 36px 24px 48px;
+}
+
+.welcome-panel {
+    color: white;
+    margin-bottom: 28px;
+}
+
+.welcome-panel .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #b8dcff;
+}
+
+.welcome-panel h2 {
+    margin: 8px 0;
+    font-size: clamp(26px, 4vw, 36px);
+}
+
+.welcome-panel>p:last-child {
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.project-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 220px;
+    padding: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.96);
+    color: #193953;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 32px rgba(0, 0, 0, 0.25);
+}
+
+.project-card-number {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    color: #8b9bac;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.project-card-icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #e8f2ff;
+    font-size: 25px;
+}
+
+.project-card-name {
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.project-card-code {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.project-card-open {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    color: #1769d2;
+    font-weight: 700;
+}
+
+.dashboard-footnote {
+    margin-top: 24px;
+    color: white;
+    font-size: 13px;
+}
+
+.topbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.register-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+@media (max-width: 850px) {
+    .project-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px) {
+    .project-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-home {
+        padding: 24px 16px;
+    }
+
+    .register-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+/* ==========================================
+   PROFESSIONAL PROJECT DOCUMENT REGISTER
+   ========================================== */
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #20364b;
+    background-color: #edf2f7;
+}
+
+/* Project register header */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 22px 30px;
+    color: white;
+    background: linear-gradient(120deg, #102f4f, #17618a);
+    border-bottom: 3px solid #35a7d8;
+    box-shadow: 0 4px 15px #102f4f30;
+}
+
+.topbar h1 {
+    margin: 0 0 6px;
+    font-size: 27px;
+    color: white;
+}
+
+.topbar p {
+    margin: 0;
+    color: #d5e9f8;
+    font-size: 14px;
+}
+
+.topbar-actions,
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Main page spacing */
+.page {
+    width: min(1500px, 96%);
+    margin: 26px auto;
+    padding: 0;
+}
+
+/* White register panel */
+.panel {
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid #dce5ee;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(20, 48, 75, 0.12);
+}
+
+/* Project dropdown and Excel buttons */
+.toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.project-picker {
+    flex: 1;
+    min-width: 240px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #29445d;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+select,
+input:not([type="file"]):not([type="checkbox"]):not([type="radio"]) {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    color: #20364b;
+    background: white;
+    border: 1px solid #cbd8e5;
+    border-radius: 7px;
+    font: inherit;
+    outline: none;
+}
+
+select:focus,
+input:focus {
+    border-color: #2584c5;
+    box-shadow: 0 0 0 3px #2584c51c;
+}
+
+/* Buttons */
+button {
+    padding: 11px 16px;
+    color: white;
+    background: #1769c2;
+    border: 1px solid #1769c2;
+    border-radius: 7px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+button:hover {
+    background: #10549e;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button.secondary {
+    color: #174566;
+    background: white;
+    border-color: #c7d7e6;
+}
+
+button.secondary:hover {
+    background: #eaf3fb;
+}
+
+/* Document count */
+.summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 18px 0;
+    padding: 14px 16px;
+    color: #164c75;
+    background: #eaf4fc;
+    border: 1px solid #d1e7f8;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Search section */
+#searchInput {
+    max-width: 460px;
+    margin-bottom: 18px;
+}
+
+/* Scrollable document table */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #dbe5ef;
+    border-radius: 9px;
+    background: white;
+}
+
+table {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+thead {
+    color: white;
+    background: #174568;
+}
+
+th {
+    padding: 14px 12px;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #e6edf4;
+    white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+    background: #f5f9fd;
+}
+
+tbody tr:hover {
+    background: #e8f4ff;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Messages and instructions */
+.message {
+    margin: 12px 0;
+    color: #36536b;
+    font-size: 13px;
+}
+
+.message.error {
+    color: #b42318;
+}
+
+.help {
+    margin-top: 18px;
+    color: #667b8d;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+/* Mobile screens */
+@media (max-width: 650px) {
+    .topbar {
+        padding: 18px;
+    }
+
+    .topbar h1 {
+        font-size: 23px;
+    }
+
+    .page {
+        width: 94%;
+        margin: 16px auto;
+    }
+
+    .panel {
+        padding: 14px;
+    }
+
+    .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .actions button {
+        flex: 1;
+    }
+}
+
+/* Full-width document register layout */
+
+.page {
+    width: calc(100% - 32px);
+    max-width: none;
+    margin: 16px auto 30px;
+    padding: 0;
+}
+
+.panel {
+    width: 100%;
+    min-height: calc(100vh - 125px);
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1px solid #dce5ee;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(20, 48, 75, 0.12);
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+table {
+    width: 100%;
+    min-width: 1250px;
+    border-collapse: collapse;
+}
+
+@media (max-width: 650px) {
+    .page {
+        width: calc(100% - 16px);
+        margin: 8px auto 20px;
+    }
+
+    .panel {
+        padding: 12px;
+    }
+}
+
+/* FULL-PAGE DOCUMENT REGISTER */
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+}
+
+body {
+    padding: 0;
+}
+
+#app {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.topbar {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+}
+
+/* Remove the gap below the header */
+.page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 12px;
+}
+
+.panel {
+    width: 100%;
+    min-height: calc(100vh - 85px);
+    margin: 0;
+    padding: 18px;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Use the full available width */
+.table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Proper document register grid */
+table {
+    width: 100%;
+    min-width: 1250px;
+    border-collapse: collapse;
+    border: 1px solid #b8c8d8;
+    background: #fff;
+}
+
+thead th {
+    color: #fff;
+    background: #174568;
+    border: 1px solid #b8c8d8;
+    padding: 12px 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+tbody td {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+    background: #f0f6fc;
+}
+
+tbody tr:hover {
+    background: #e0efff;
+}
+
+/* Keep the project controls neatly aligned */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+}
+
+.project-picker {
+    flex: 1;
+    min-width: 240px;
+}
+
+@media (max-width: 650px) {
+    .page {
+        padding: 6px;
+    }
+
+    .panel {
+        padding: 10px;
+    }
+}
+
+/* Excel-style document register tabs */
+.register-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #cbd8e5;
+}
+
+.register-tab {
+    padding: 10px 14px;
+    color: #23445d;
+    background: #e8eff6;
+    border: 1px solid #cbd8e5;
+    border-radius: 6px 6px 0 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.register-tab:hover,
+.register-tab.active {
+    color: white;
+    background: #174568;
+    border-color: #174568;
+}
+
+/* Dashboard status cards */
+.status-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.status-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: white;
+    border: 1px solid #d6e0e9;
+    border-left: 5px solid #3977a5;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px #163b5c12;
+}
+
+.status-card span {
+    color: #526b80;
+    font-size: 13px;
+}
+
+.status-card strong {
+    color: #183b56;
+    font-size: 28px;
+}
+
+.status-card.accepted {
+    border-left-color: #26945d;
+}
+
+.status-card.comments {
+    border-left-color: #3889c9;
+}
+
+.status-card.revise {
+    border-left-color: #d49a20;
+}
+
+.status-card.rejected {
+    border-left-color: #d74747;
+}
+
+.status-card.terminated {
+    border-left-color: #777f89;
+}
+
+.status-card.pending {
+    border-left-color: #875cc4;
+}
+
+@media (max-width: 650px) {
+    .register-tabs {
+        gap: 5px;
+    }
+
+    .register-tab {
+        padding: 8px 10px;
+    }
+
+    .status-dashboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .status-card {
+        padding: 13px;
+    }
+
+    .status-card strong {
+        font-size: 23px;
+    }
+}
+
+/* Excel-style document register improvements */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+.table-wrap table {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 13px;
+}
+
+.table-wrap th,
+.table-wrap td {
+    padding: 10px 12px;
+    border: 1px solid #d5dee8;
+    text-align: left;
+    vertical-align: top;
+}
+
+.table-wrap thead th {
+    position: sticky;
+    top: 0;
+    background: #174568;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.table-wrap tbody tr:nth-child(even) {
+    background: #f3f7fb;
+}
+
+.table-wrap tbody tr:hover {
+    background: #e2effa;
+}
+
+.table-wrap tbody td {
+    color: #243b53;
+}
+
+.register-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #cbd8e5;
+}
+
+.register-tab {
+    padding: 10px 14px;
+    color: #23445d;
+    background: #e8eff6;
+    border: 1px solid #cbd8e5;
+    border-radius: 6px 6px 0 0;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.register-tab:hover,
+.register-tab.active {
+    color: #fff;
+    background: #174568;
+    border-color: #174568;
+}
+
+.status-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.status-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #d6e0e9;
+    border-left: 5px solid #3977a5;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px #163b5c12;
+}
+
+.status-card span {
+    color: #526b80;
+    font-size: 13px;
+}
+
+.status-card strong {
+    color: #183b56;
+    font-size: 28px;
+}
+
+.status-card.accepted {
+    border-left-color: #26945d;
+}
+
+.status-card.comments {
+    border-left-color: #3889c9;
+}
+
+.status-card.revise {
+    border-left-color: #d49a20;
+}
+
+.status-card.rejected {
+    border-left-color: #d74747;
+}
+
+.status-card.terminated {
+    border-left-color: #777f89;
+}
+
+.status-card.pending {
+    border-left-color: #875cc4;
+}
+
+@media (max-width: 650px) {
+    .register-tabs {
+        gap: 5px;
+    }
+
+    .register-tab {
+        padding: 8px 10px;
+    }
+
+    .status-dashboard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .status-card {
+        padding: 13px;
+    }
+
+    .status-card strong {
+        font-size: 23px;
+    }
+}

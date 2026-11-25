@@ -42,6 +42,7 @@ let currentPage = 1;
 let totalDocuments = 0;
 let totalPages = 0;
 let dashboardCountsProjectId = '';
+let dashboardRows = [];
 let dashboardCounts = {
   total: 0,
   accepted: 0,
@@ -272,57 +273,76 @@ function showProjectsDashboard() {
 }
 
 /* Excel workbook tabs represented in the website. */
-const registers = [
-  { key: 'DASHBOARD', label: 'Dashboard', aliases: [] },
-  { key: 'WIR', label: 'Work Inspection Request', aliases: ['workinspectionrequest', 'wir'] },
-  { key: 'MIR', label: 'Material Inspection Request', aliases: ['materialinspectionrequest', 'mir'] },
-  { key: 'MAT', label: 'Material Submittal', aliases: ['materialsubmittal', 'mat'] },
-  { key: 'MTS', label: 'Method Statement', aliases: ['methodstatement', 'mts'] },
-  { key: 'SDW', label: 'Shop Drawings', aliases: ['shopdrawings', 'sdw', 'shopdrawing'] },
-  { key: 'ABD', label: 'As Built Drawings', aliases: ['asbuiltdrawings', 'abd', 'asbuiltdrawing'] },
-  { key: 'PQ', label: 'Pre-Qualification', aliases: ['prequalification', 'pq', 'pqr'] },
-  { key: 'LTR_AMAALA', label: 'LTR AMAALA', aliases: ['ltramaala'] },
-  { key: 'LTR_STE', label: 'LTR STE', aliases: ['ltrste'] },
-  { key: 'RFI', label: 'RFI', aliases: ['rfi', 'requestforinformation'] },
-  { key: 'ITP', label: 'Inspection & Test Plan', aliases: ['inspectiontestplan', 'itp'] },
-  { key: 'ENV', label: 'Environmental Report', aliases: ['environmentalreport', 'env'] },
-  { key: 'SUS', label: 'Sustainability Report', aliases: ['sustainabilityreport', 'sus'] }
+let registers = [
+  { key: 'DASHBOARD', label: 'Dashboard' }
 ];
 
-function registerForSheetName(name) {
-  const n = normalize(name);
-  return registers.find(r => r.key !== 'DASHBOARD' &&
-    (r.aliases.includes(n) || normalize(r.label) === n)) || null;
+function registerKey(name) {
+  return normalize(name);
+}
+
+// Compare register names in singular form so dashboard labels such as
+// 'Shop Drawings' match workbook tabs stored as 'Shop Drawing'.
+function registerMatchKey(name) {
+  const key = registerKey(name);
+  if (key.endsWith('ies') && key.length > 3) return key.slice(0, -3) + 'y';
+  if (key.endsWith('s') && key.length > 1) return key.slice(0, -1);
+  return key;
 }
 
 function registerForDocument(doc) {
-  const type = normalize(doc.type);
-  const no = normalize(doc.document_no);
-  return registers.find(r => r.key !== 'DASHBOARD' &&
-    ((type && r.aliases.some(alias => type.includes(alias) || alias.includes(type))) ||
-      (r.key === 'RFI' && (type === 'rfi' || no.includes('rfi'))) ||
-      (r.key === 'WIR' && no.includes('wir')) ||
-      (r.key === 'MIR' && no.includes('mir')) ||
-      (r.key === 'MAT' && no.includes('mat')) ||
-      (r.key === 'MTS' && no.includes('mts')) ||
-      (r.key === 'SDW' && no.includes('sdw')) ||
-      (r.key === 'ABD' && no.includes('abd')))) || null;
+  const type = registerKey(doc.type);
+  if (!type) return null;
+
+  // Match against the visible worksheet name, not a possibly old or
+  // inconsistent register_key stored in the database.
+  return registers.find(register =>
+    register.key !== 'DASHBOARD' &&
+    registerMatchKey(register.label) === registerMatchKey(doc.type)
+  ) || null;
 }
 
-const registerDatabaseTypes = {
-  WIR: 'Work Inspection Request',
-  MIR: 'Material Inspection Request',
-  MAT: 'Material Submittal',
-  MTS: 'Method Statement',
-  SDW: 'Shop Drawings',
-  ABD: 'As Built Drawings',
-  PQ: 'Pre-Qualification',
-  LTR_AMAALA: 'LTR AMAALA',
-  LTR_STE: 'LTR STE',
-  RFI: 'RFI',
-  ITP: 'Inspection & Test Plan',
-  ENV: 'Envrionmental Report',
-};
+/*
+ * Load this project's register tabs from the dedicated register list.
+ * This includes worksheets with zero document rows.
+ */
+async function loadProjectRegisters() {
+  const { data, error } = await supabase
+    .from('master_log_registers')
+    .select('register_name, register_key')
+    .eq('project_id', selectedProjectId)
+    .order('register_name', { ascending: true });
+
+  if (error) throw error;
+
+  const seen = new Set(['DASHBOARD']);
+  const dynamic = (data ?? [])
+    .map(row => {
+      const label = String(row.register_name ?? '').trim();
+      // Build a consistent runtime key from the worksheet name. This keeps
+      // navigation working even if an older stored register_key differs.
+      return { key: registerMatchKey(label), label };
+    })
+    .filter(register => {
+      if (!register.label || !register.key ||
+        register.key === 'DASHBOARD' ||
+        register.key === 'NOTSPECIFIED' ||
+        seen.has(register.key)) return false;
+      seen.add(register.key);
+      return true;
+    });
+
+  registers = [
+    { key: 'DASHBOARD', label: 'Dashboard' },
+    ...dynamic
+  ];
+
+  if (activeRegister !== 'DASHBOARD' &&
+    !registers.some(register => register.key === activeRegister)) {
+    activeRegister = 'DASHBOARD';
+    sessionStorage.setItem('activeRegister', activeRegister);
+  }
+}
 function statusCounts(list) {
   const counts = {
     total: list.length,
@@ -383,7 +403,7 @@ async function loadDashboardCounts() {
   while (true) {
     const { data, error } = await supabase
       .from('master_log_documents')
-      .select('status, review_status')
+      .select('status, review_status, type, discipline')
       .eq('project_id', selectedProjectId)
       .order('id', { ascending: true })
       .range(from, from + batchSize - 1);
@@ -401,9 +421,116 @@ async function loadDashboardCounts() {
     from += batchSize;
   }
 
+  dashboardRows = allStatuses;
   dashboardCounts = statusCounts(allStatuses);
   dashboardCountsProjectId = String(selectedProjectId);
   console.log('Full dashboard counts:', dashboardCounts);
+}
+
+function dashboardGroupSummary(field) {
+  const map = new Map();
+  for (const row of dashboardRows) {
+    const label = String(row[field] ?? '').trim() || 'Not specified';
+    map.set(label, (map.get(label) || 0) + 1);
+  }
+  return [...map.entries()]
+    .map(([label, count]) => ({ label, count, pct: dashboardCounts.total ? count / dashboardCounts.total * 100 : 0 }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+function dashboardStatusRows() {
+  const items = [
+    ['A', 'Accepted', dashboardCounts.accepted],
+    ['B', 'Accepted with Comments', dashboardCounts.comments],
+    ['C', 'Revise & Resubmit', dashboardCounts.revise],
+    ['D', 'Rejected', dashboardCounts.rejected],
+    ['E', 'Terminated', dashboardCounts.terminated],
+    ['F', 'Pending / Under Review', dashboardCounts.pending]
+  ];
+  return items.map(([code, label, count]) => ({
+    code, label, count,
+    pct: dashboardCounts.total ? count / dashboardCounts.total * 100 : 0
+  }));
+}
+
+function dashboardTable(title, heading, rows, emptyText, clickable = false) {
+  return `
+    <section class="dash-summary-card">
+      <h3>${title}</h3>
+      <div class="dash-table-scroll">
+        <table class="dash-summary-table">
+          <thead><tr><th>${heading}</th><th>Documents</th><th>% of Total</th></tr></thead>
+          <tbody>${rows.length ? (clickable ? rows : rows.slice(0, 12)).map(row => {
+    const rowKey = registerKey(row.label);
+    const targetRegister = clickable && rowKey !== 'NOTSPECIFIED'
+      ? registers.find(register =>
+        register.key !== 'DASHBOARD' &&
+        (register.key === rowKey ||
+          registerMatchKey(register.label) === registerMatchKey(row.label))
+      )
+      : null;
+    return `
+              <tr ${targetRegister ? `class="dash-register-row" data-register="${safe(targetRegister.key)}" tabindex="0" role="button" title="Open ${safe(targetRegister.label)} register"` : ''}>
+                <td>${safe(row.label)}</td><td>${row.count.toLocaleString()}</td><td>${row.pct.toFixed(1)}%</td>
+              </tr>`;
+  }).join('') : `<tr><td colspan="3">${emptyText}</td></tr>`}</tbody>
+        </table>
+      </div>
+    </section>`;
+}
+
+function renderMasterDashboard() {
+  const statusRows = dashboardStatusRows();
+  const registerRows = dashboardGroupSummary('type');
+  const disciplineRows = dashboardGroupSummary('discipline');
+  const colors = ['#4f8b36', '#83b93e', '#ef7b2d', '#cf1717', '#858585', '#3973c9'];
+  const total = Math.max(1, dashboardCounts.total);
+  let cursor = 0;
+  const segments = statusRows.map((row, i) => {
+    const start = cursor;
+    cursor += row.count / total * 100;
+    return `${colors[i]} ${start}% ${cursor}%`;
+  });
+  const donutStyle = `background:conic-gradient(${segments.join(',')})`;
+  const bars = registerRows.slice(0, 10).map(row => `
+    <div class="dash-bar-row"><span title="${safe(row.label)}">${safe(row.label)}</span>
+      <div class="dash-bar-track"><i style="width:${Math.max(row.pct, row.count ? 1 : 0)}%"></i></div>
+      <b>${row.count.toLocaleString()}</b></div>`).join('');
+  const disciplineBars = disciplineRows.slice(0, 10).map(row => `
+    <div class="dash-bar-row"><span title="${safe(row.label)}">${safe(row.label)}</span>
+      <div class="dash-bar-track"><i style="width:${Math.max(row.pct, row.count ? 1 : 0)}%"></i></div>
+      <b>${row.count.toLocaleString()}</b></div>`).join('');
+  return `
+    <section class="master-dashboard">
+      <div class="master-dash-heading">
+        <h2>${safe(projects.find(p => String(p.id) === String(selectedProjectId))?.project_name || 'PROJECT')} | MASTER DOCUMENT CONTROL DASHBOARD</h2>
+        <p>Project Code: ${safe(projects.find(p => String(p.id) === String(selectedProjectId))?.project_code || '')} | Consolidated from available register worksheets</p>
+      </div>
+      <div class="dash-kpi-grid">
+        <div class="dash-kpi total"><span>Total Documents</span><strong>${dashboardCounts.total.toLocaleString()}</strong></div>
+        <div class="dash-kpi accepted"><span>Code A | Accepted</span><strong>${dashboardCounts.accepted.toLocaleString()}</strong></div>
+        <div class="dash-kpi comments"><span>Code B | Accepted with Comments</span><strong>${dashboardCounts.comments.toLocaleString()}</strong></div>
+        <div class="dash-kpi revise"><span>Code C | Revise & Resubmit</span><strong>${dashboardCounts.revise.toLocaleString()}</strong></div>
+        <div class="dash-kpi rejected"><span>Code D | Rejected</span><strong>${dashboardCounts.rejected.toLocaleString()}</strong></div>
+        <div class="dash-kpi terminated"><span>Code E | Terminated</span><strong>${dashboardCounts.terminated.toLocaleString()}</strong></div>
+        <div class="dash-kpi pending"><span>Code F | Pending / Under Review</span><strong>${dashboardCounts.pending.toLocaleString()}</strong></div>
+      </div>
+      <div class="dash-summary-grid">
+        ${dashboardTable('DOCUMENT STATUS SUMMARY', 'Code / Review Status', statusRows, 'No status records found')}
+        ${dashboardTable('REGISTER-WISE DOCUMENT SUMMARY', 'Register', registerRows, 'No register data found', true)}
+        ${dashboardTable('DISCIPLINE-WISE SUMMARY', 'Discipline', disciplineRows, 'No discipline data found')}
+      </div>
+      <div class="dash-chart-grid">
+        <section class="dash-chart-card"><h3>DOCUMENT REVIEW STATUS</h3>
+          <div class="dash-donut-layout"><div class="dash-donut" style="${donutStyle}"><div><b>${dashboardCounts.total.toLocaleString()}</b><small>Documents</small></div></div>
+            <ul class="dash-legend">${statusRows.map((row, i) => `<li><i style="background:${colors[i]}"></i><span>${row.code} · ${safe(row.label)}</span><b>${row.count.toLocaleString()}</b></li>`).join('')}</ul>
+          </div>
+        </section>
+        <section class="dash-chart-card"><h3>DOCUMENTS BY REGISTER</h3><div class="dash-bars">${bars || '<p>No register data available.</p>'}</div></section>
+        <section class="dash-chart-card"><h3>DOCUMENTS BY DISCIPLINE</h3><div class="dash-bars">${disciplineBars || '<p>No discipline data available.</p>'}</div></section>
+      </div>
+      <p class="dash-note">Dashboard summaries are calculated from all document records currently stored for this project. Register and discipline names are taken from imported workbook data.</p>
+    </section>`;
 }
 
 /* Open the selected project's document register. */
@@ -470,16 +597,8 @@ function renderTable() {
         </nav>
 
         ${activeRegister === 'DASHBOARD' ? `
-  <section class="status-dashboard">
-    <div class="status-card total"><span>Total documents</span><strong>${counts.total.toLocaleString()}</strong></div>
-    <div class="status-card accepted"><span>Accepted / Approved</span><strong>${counts.accepted.toLocaleString()}</strong></div>
-    <div class="status-card comments"><span>Accepted with Comments</span><strong>${counts.comments.toLocaleString()}</strong></div>
-    <div class="status-card revise"><span>Revise & Resubmit</span><strong>${counts.revise.toLocaleString()}</strong></div>
-    <div class="status-card rejected"><span>Rejected</span><strong>${counts.rejected.toLocaleString()}</strong></div>
-    <div class="status-card terminated"><span>Terminated</span><strong>${counts.terminated.toLocaleString()}</strong></div>
-    <div class="status-card pending"><span>Pending / Under Review</span><strong>${counts.pending.toLocaleString()}</strong></div>
-  </section>
-  <p class="help">Select a register tab to view its documents. Dashboard totals are calculated from all records for this project.</p>
+  ${renderMasterDashboard()}
+  <p class="help">Select a register tab to view its documents.</p>
 ` : `
   <div class="summary">
     <span>
@@ -563,6 +682,7 @@ function renderTable() {
   document.querySelector('#projectSelect').onchange = async e => {
     selectedProjectId = e.target.value;
     dashboardCountsProjectId = '';
+    dashboardRows = [];
     currentPage = 1;
     totalDocuments = 0;
     totalPages = 0;
@@ -583,6 +703,24 @@ function renderTable() {
 
       await loadDocuments();
     };
+  });
+
+  // Clicking a register-wise dashboard row opens that register directly.
+  document.querySelectorAll('.dash-register-row').forEach(row => {
+    const openRegister = async () => {
+      activeRegister = row.dataset.register;
+      sessionStorage.setItem('activeRegister', activeRegister);
+      searchText = '';
+      currentPage = 1;
+      await loadDocuments();
+    };
+    row.addEventListener('click', openRegister);
+    row.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        openRegister();
+      }
+    });
   });
 
   // Previous page button
@@ -722,8 +860,20 @@ async function importExcel(event) {
 
     const records = [];
     const skippedSheets = [];
+    const detectedRegisters = [];
 
     for (const sheetName of workbook.SheetNames) {
+      const cleanSheetName = String(sheetName ?? '').trim();
+      if (!cleanSheetName) continue;
+
+      // Register names are captured before checking document headers.
+      // This preserves empty worksheets as visible register tabs.
+      detectedRegisters.push({
+        project_id: selectedProjectId,
+        register_name: cleanSheetName,
+        register_key: registerKey(cleanSheetName)
+      });
+
       const sheet = workbook.Sheets[sheetName];
       if (!sheet) continue;
 
@@ -740,7 +890,8 @@ async function importExcel(event) {
         })
       );
 
-      // Dashboard and summary sheets are expected not to have document IDs.
+      // Keep the worksheet as a register even if it has no document-number
+      // heading. It will simply have no document rows imported.
       if (headerIndex === -1) {
         skippedSheets.push(sheetName);
         continue;
@@ -762,7 +913,8 @@ async function importExcel(event) {
       const dateHeader = findHeader(['datemodified', 'modifieddate', 'lastmodified', 'date']);
       const statusHeader = findHeader(['status', 'documentstatus', 'reviewstatus', 'reviewresult', 'reviewoutcome']);
       const revisionHeader = findHeader(['revision', 'rev', 'revisionno', 'revno']);
-      const sheetRegister = registerForSheetName(sheetName);
+      // The worksheet name is the register name for this imported sheet.
+      const sheetRegisterName = String(sheetName).trim();
 
       const rows = matrix.slice(headerIndex + 1)
         .filter(row => row.some(cell => String(cell ?? '').trim() !== ''));
@@ -791,8 +943,9 @@ async function importExcel(event) {
             record[field] = value;
           } else if (field === 'date_modified') {
             record[field] = formatDate(value);
-          } else if (field === 'type' && sheetRegister) {
-            record[field] = sheetRegister.label;
+          } else if (field === 'type') {
+            // Keep the exact Excel worksheet name so it appears as a tab.
+            record[field] = sheetRegisterName || value || null;
           } else {
             record[field] = value || null;
           }
@@ -802,13 +955,24 @@ async function importExcel(event) {
       }
     }
 
-    if (!records.length) {
-      throw new Error(
-        'No document records were found. Check that your workbook has a Document No or Mail No heading.'
-      );
+    if (!detectedRegisters.length) {
+      throw new Error('No worksheets were found in this workbook.');
     }
 
-    // Send manageable batches and keep the database's existing unique key.
+    // Save every worksheet name for this project, including empty registers.
+    const registerBatchSize = 500;
+    for (let i = 0; i < detectedRegisters.length; i += registerBatchSize) {
+      const { error } = await supabase
+        .from('master_log_registers')
+        .upsert(detectedRegisters.slice(i, i + registerBatchSize), {
+          onConflict: 'project_id,register_key'
+        });
+
+      if (error) throw error;
+    }
+
+    // Import document rows only when worksheets contain usable document IDs.
+    // Existing document records are retained; matching keys are updated.
     let imported = 0;
     const batchSize = 500;
     for (let i = 0; i < records.length; i += batchSize) {
@@ -825,9 +989,11 @@ async function importExcel(event) {
     }
 
     const skippedMessage = skippedSheets.length
-      ? ` Summary/non-register sheets skipped: ${skippedSheets.join(', ')}.`
+      ? ` These worksheets were registered but had no Document No/Mail No heading, so no document rows were imported: ${skippedSheets.join(', ')}.`
       : '';
-    notice(`Successfully imported/updated ${imported.toLocaleString()} rows across workbook registers.${skippedMessage}`);
+    notice(`Successfully detected ${detectedRegisters.length.toLocaleString()} worksheets and imported/updated ${imported.toLocaleString()} document rows.${skippedMessage}`);
+    dashboardCountsProjectId = '';
+    dashboardRows = [];
     activeRegister = 'DASHBOARD';
     await loadDocuments();
   } catch (error) {
@@ -875,13 +1041,8 @@ async function exportExcel() {
         .eq('project_id', selectedProjectId);
 
       if (activeRegister !== 'DASHBOARD') {
-        const databaseType = registerDatabaseTypes[activeRegister];
-
-        if (databaseType) {
-          query = query.eq('type', databaseType);
-        } else {
-          query = query.eq('type', '__NO_MATCHING_REGISTER__');
-        }
+        const selectedRegister = registers.find(r => r.key === activeRegister);
+        query = query.eq('type', selectedRegister?.label ?? '__NO_MATCHING_REGISTER__');
       }
 
       const { data, error } = await query
@@ -960,6 +1121,8 @@ async function loadDocuments() {
     activeRegister =
       sessionStorage.getItem('activeRegister') || 'DASHBOARD';
 
+    await loadProjectRegisters();
+
     const from = (currentPage - 1) * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
@@ -985,14 +1148,8 @@ async function loadDocuments() {
 
     // Filter by the selected register before pagination.
     if (activeRegister !== 'DASHBOARD') {
-      const databaseType = registerDatabaseTypes[activeRegister];
-
-      if (databaseType) {
-        query = query.eq('type', databaseType);
-      } else {
-        // Registers without a matching database type show zero records.
-        query = query.eq('type', '__NO_MATCHING_REGISTER__');
-      }
+      const selectedRegister = registers.find(r => r.key === activeRegister);
+      query = query.eq('type', selectedRegister?.label ?? '__NO_MATCHING_REGISTER__');
     }
     // Search across all matching records in the selected register.
     const term = searchText.trim();
